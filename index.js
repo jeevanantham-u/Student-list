@@ -5,10 +5,11 @@ import env from "dotenv";
 
 const app = express();
 const port = 3000;
-env.config();
-const connectionString = process.env.DB_STRING ;
 
 app.use(bodyParser.urlencoded({ extended: true }));
+env.config();
+
+const connectionString = process.env.DB_STRING ;
 
 // Connect to MongoDB Atlas
 const connectToDB = async () => {
@@ -32,34 +33,21 @@ const studentListSchima = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentListSchima);
 
-const student = new Student({
-    name: 'jeeva',
-    dob: '10/02/2002',
-    class: '10',
-    phone: '7603982326',
-    address: 'madurai'
-});
-
-// student.save();
-
-const stud = await Student.find({});
-console.log(stud);
-
-
-app.get('/students', (req, res) => {
-    res.json(list);
+app.get('/students', async(req, res) => {
+    const students = await Student.find({});
+    res.json(students);
 });
 
 app.post('/students', (req, res) => {
-    const newStudent = {
-        id: list.length + 1,
+    const newStudent = new Student({
         name: req.body.name,
         dob: req.body.dob,
         class: req.body.class,
         phone: req.body.phone,
         address: req.body.address
-    }
+    });
     list.push(newStudent);
+    newStudent.save();
     res.json(newStudent);
 });
 
@@ -136,9 +124,3 @@ const list = [
         address: 'madurai'
     },
 ];
-
-//JQQfyK3aAn9me7xs
-//ip: 115.97.1.144
-//mongodb+srv://jeevauj:BhMEo1rgwxP2jdTf@student-list.7hxkbml.mongodb.net/?retryWrites=true&w=majority&appName=Student-list
-
-//mongodb+srv://jeeva:<password>@student-list.fuxg6lc.mongodb.net/?retryWrites=true&w=majority&appName=Student-list
