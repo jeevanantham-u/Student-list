@@ -2,14 +2,28 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import env from "dotenv";
+import cors from "cors";
 
 const app = express();
-const port = 3000;
+const port = 8000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
+app.use(bodyParser.json());
 env.config();
 
 const connectionString = process.env.DB_STRING ;
+
+app.use((req, res, next) => {
+    const allowedOrigins = ['https://student-list-c0ck.onrender.com'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+  });
 
 // Connect to MongoDB Atlas
 const connectToDB = async () => {
@@ -32,8 +46,6 @@ const studentListSchima = new mongoose.Schema({
 });
 
 const Student = mongoose.model('Student', studentListSchima);
-
-console.log();
 
 app.get('/students', async(req, res) => {
     const students = await Student.find();
@@ -58,9 +70,7 @@ app.post('/students', async (req, res) => {
         newStudent.save();
         res.status(201).json(newStudent);
     } catch (err) {
-            // Handle errors
-            console.error('Error creating document:', err.message);
-            res.status(400).json({ error: `Document not created. ${err.message}` });
+        res.status(400).json({ error: `Document not created. ${err.message}` });
     }
 });
     
@@ -87,8 +97,6 @@ app.put('/students/:id', async(req, res) => {
 
         res.json(updatedData);
     } catch (err) {
-        // Handle errors
-        console.error('Error updating document:', err.message);
         res.status(400).json({ error: `Document not updated. ${err.message}` });
     }
 });
@@ -97,8 +105,7 @@ app.delete('/students/:id', async(req, res) => {
     const id = req.params.id;
     try {
         const deleteData = await Student.findByIdAndDelete(id);
-        console.log(deleteData);
-
+       
         if (!deleteData) {
           return res.status(404).json({ message: 'Id not found' });
         }
