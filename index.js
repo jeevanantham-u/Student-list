@@ -14,17 +14,6 @@ env.config();
 
 const connectionString = process.env.DB_STRING ;
 
-app.use((req, res, next) => {
-    const allowedOrigins = ['https://student-list-c0ck.onrender.com'];
-    const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-  });
-
 // Connect to MongoDB Atlas
 const connectToDB = async () => {
     try {
@@ -40,9 +29,8 @@ connectToDB();
 const studentListSchima = new mongoose.Schema({
     name: String,
     dob: String,
-    class: Number,
-    phone: Number,
-    address: String
+    gender: String,
+    email: String,
 });
 
 const Student = mongoose.model('Student', studentListSchima);
@@ -62,9 +50,8 @@ app.post('/students', async (req, res) => {
         const newStudent = new Student({
             name: req.body.name,
             dob: req.body.dob,
-            class: req.body.class,
-            phone: req.body.phone,
-            address: req.body.address
+            gender: req.body.gender,
+            email: req.body.email
         });
         
         newStudent.save();
@@ -84,9 +71,8 @@ app.put('/students/:id', async(req, res) => {
         const replacementData = {
             name: req.body.name,
             dob: req.body.dob,
-            class: req.body.class,
-            phone: req.body.phone,
-            address: req.body.address,
+            gender: req.body.gender,
+            email: req.body.email
            };
 
         const updatedData = await Student.findByIdAndUpdate(id, replacementData, { new: true });
